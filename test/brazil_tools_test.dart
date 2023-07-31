@@ -12,8 +12,8 @@ void main() {
     return true;
   });
 
-  test("Trazer Estados", () async {
-    var f = await Brasil.estados;
+  test("Trazer Estados", () {
+    var f = Brasil.estados;
     for (var e in f) {
       for (var c in e.cidades) {
         debugPrint("${e.nome} - ${c.nome}");
@@ -21,8 +21,8 @@ void main() {
     }
   });
 
-  test("Trazer Estados de novo", () async {
-    var f = await Brasil.estados;
+  test("Trazer Estados de novo", () {
+    var f = Brasil.estados;
     for (var e in f) {
       for (var c in e.cidades) {
         debugPrint("${e.nome} - ${c.nome}");
@@ -30,13 +30,13 @@ void main() {
     }
   });
 
-  test("Pegar Estado por IBGE", () async {
-    var est = await Brasil.pegarEstado("35");
+  test("Pegar Estado por IBGE", () {
+    var est = Brasil.pegarEstado("35");
     debugPrint(est!.nome);
   });
 
-    test("Pegar Cidade por IBGE", () async {
-    var est = await Brasil.pegarCidade("São Paulo","SP");
+  test("Pegar Cidade por IBGE", () async {
+    var est = Brasil.pegarCidade("São Paulo", "SP");
     debugPrint(est!.nome);
   });
 }

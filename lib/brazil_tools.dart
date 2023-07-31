@@ -1,11 +1,8 @@
 library brazil_tools;
 
+import 'dart:io';
 import 'dart:math';
-
-import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
-import 'package:flutter/services.dart';
 
 mixin Brasil {
   /// Lista contendo os nomes mais comuns no Brasil
@@ -179,53 +176,46 @@ mixin Brasil {
   }
 
   static final List<Estado> _estados = [];
-  static final List<Cidade> _cidades = [];
-  static Future<List<Estado>> get estados async {
+  static List<Estado> get estados {
     if (_estados.isEmpty) {
-      var jsonText = await rootBundle.loadString('assets/estados.json');
+      var jsonText = File('assets/estados.json').readAsStringSync();
       var data = json.decode(jsonText) as List<dynamic>;
       for (var v in data) {
         var e = Estado._fromJson(v as Map<String, dynamic>);
         _estados.add(e);
-        _cidades.addAll(e.cidades);
       }
     }
     return _estados.toList(growable: false);
   }
 
-  static Future<List<Cidade>> get cidades async {
-    await estados;
-    return _cidades;
-  }
+  static List<Cidade> get cidades => estados.expand((element) => element.cidades).toList();
 
   /// pega um estado a partir do nome, UF ou IBGE
-  static Future<Estado?> pegarEstado(String nomeOuUFOuIBGE) async {
+  static Estado? pegarEstado(String nomeOuUFOuIBGE) {
     try {
-      await estados;
       nomeOuUFOuIBGE = nomeOuUFOuIBGE.toLowerCase().trim();
-      return _estados.firstWhere((e) => e.nome.toLowerCase() == nomeOuUFOuIBGE || e.uf.toLowerCase() == nomeOuUFOuIBGE || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2));
+      return estados.firstWhere((e) => e.nome.toLowerCase() == nomeOuUFOuIBGE || e.uf.toLowerCase() == nomeOuUFOuIBGE || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2));
     } catch (e) {
       return null;
     }
   }
 
   /// pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
-  static Future<List<Cidade>> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) async {
+  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) {
     try {
-      await estados;
       nomeCidadeOuIBGE = nomeCidadeOuIBGE.toLowerCase().trim();
-      Estado? e = await pegarEstado(nomeCidadeOuIBGE);
+      Estado? e = pegarEstado(nomeCidadeOuIBGE);
       if (e == null && nomeOuUFOuIBGE.trim() != "") {
-        e = await pegarEstado(nomeOuUFOuIBGE);
+        e = pegarEstado(nomeOuUFOuIBGE);
       }
-      return (e?.cidades ?? _cidades).where((c) => c.nome.toLowerCase().contains(nomeCidadeOuIBGE) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList();
+      return (e?.cidades ?? cidades).where((c) => c.nome.toLowerCase().contains(nomeCidadeOuIBGE.toLowerCase()) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList();
     } catch (e) {
       return [];
     }
   }
 
   /// Pega uma cidade a partir do nome, UF ou IBGE e estado
-  static Future<Cidade?> pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) async => (await pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE)).singleOrNull;
+  static Cidade? pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE).singleOrNull;
 }
 
 class Estado {
@@ -238,7 +228,7 @@ class Estado {
   final List<Cidade> cidades = [];
 
   @override
-  int get hashCode => ibge;
+  int get hashCode => Object.hash(ibge, 0);
 
   Estado._(this.nome, this.uf, this.ibge, this.regiao, this.latitude, this.longitude);
 
@@ -293,6 +283,5 @@ class Cidade {
   }
 
   @override
-  // TODO: implement hashCode
-  int get hashCode => ibge;
+  int get hashCode => Object.hash(ibge, 0);
 }
