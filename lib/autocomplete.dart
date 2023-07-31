@@ -3,9 +3,26 @@ import 'package:flutter/material.dart';
 import 'brazil_tools.dart';
 
 class EstadoAutocomplete extends Autocomplete<Estado> {
-  EstadoAutocomplete({super.key}) : super(optionsBuilder: (TextEditingValue v) => Brasil.estados.where((element) => element.uf.toLowerCase() == v.text.toLowerCase() || element.nome.toLowerCase().contains(v.text.toLowerCase())).toList());
+  EstadoAutocomplete({
+    super.key,
+    super.displayStringForOption = RawAutocomplete.defaultStringForOption,
+    super.onSelected,
+    super.optionsMaxHeight = 200.0,
+    super.optionsViewBuilder,
+    super.initialValue,
+    super.fieldViewBuilder,
+  }) : super(optionsBuilder: (TextEditingValue v) => Brasil.estados.where((element) => element.uf.toLowerCase() == v.text.toLowerCase() || element.nome.toLowerCase().contains(v.text.toLowerCase())).toList());
 }
 
 class CidadeAutocomplete extends Autocomplete<Cidade> {
-  CidadeAutocomplete({super.key, String nomeEstadoOuUfOuIBGE = ""}) : super(optionsBuilder: (TextEditingValue v) => Brasil.pesquisarCidade(v.text, nomeEstadoOuUfOuIBGE));
+  CidadeAutocomplete({
+    super.key,
+    super.displayStringForOption = RawAutocomplete.defaultStringForOption,
+    super.onSelected,
+    super.optionsMaxHeight = 200.0,
+    super.optionsViewBuilder,
+    super.initialValue,
+    super.fieldViewBuilder,
+    String nomeEstadoOuUfOuIBGE = "",
+  }) : super(optionsBuilder: (TextEditingValue v) => Brasil.pesquisarCidade(v.text, nomeEstadoOuUfOuIBGE));
 }
