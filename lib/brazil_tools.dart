@@ -228,6 +228,9 @@ class Estado {
   final List<Cidade> cidades = [];
 
   @override
+  String toString() => nome;
+
+  @override
   int get hashCode => Object.hash(ibge, 0);
 
   Estado._(this.nome, this.uf, this.ibge, this.regiao, this.latitude, this.longitude);
@@ -263,6 +266,9 @@ class Cidade {
   final int ddd;
   final String timeZone;
   final Estado estado;
+
+  @override
+  String toString() => nome;
 
   Cidade._(this.nome, this.capital, this.ibge, this.siafi, this.ddd, this.timeZone, this.estado);
 

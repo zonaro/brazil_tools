@@ -20,9 +20,13 @@ class CidadeAutocomplete extends Autocomplete<Cidade> {
     super.displayStringForOption = RawAutocomplete.defaultStringForOption,
     super.onSelected,
     super.optionsMaxHeight = 200.0,
-    super.optionsViewBuilder,
+ 
     super.initialValue,
     super.fieldViewBuilder,
     String nomeEstadoOuUfOuIBGE = "",
-  }) : super(optionsBuilder: (TextEditingValue v) => Brasil.pesquisarCidade(v.text, nomeEstadoOuUfOuIBGE));
+  }) : super(
+        optionsViewBuilder: (e) {
+          
+        },
+    optionsBuilder: (TextEditingValue v) => Brasil.pesquisarCidade(v.text, nomeEstadoOuUfOuIBGE));
 }
