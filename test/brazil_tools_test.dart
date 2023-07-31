@@ -35,7 +35,15 @@ void main() {
     debugPrint(est!.nome);
   });
 
-  test("Pegar Cidade por IBGE", () async {
+  test("Pegar Cidades", () async {
+    var est = Brasil.cidades;
+    for (var element in est) {
+    debugPrint(element.nome);
+      
+    }
+  });
+
+    test("Pegar Cidade por IBGE", () async {
     var est = Brasil.pegarCidade("São Paulo", "SP");
     debugPrint(est!.nome);
   });
