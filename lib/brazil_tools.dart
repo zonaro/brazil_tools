@@ -8,9 +8,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 mixin Brasil {
-
-
-
   /// Lista contendo os nomes mais comuns no Brasil
   static List<String> get nomesComuns => [
         "Miguel",
@@ -187,10 +184,20 @@ mixin Brasil {
       var jsonText = await rootBundle.loadString('assets/estados.json');
       var data = json.decode(jsonText) as List<dynamic>;
       for (var v in data) {
-        _estados.add(Estado.fromJson(v as Map<String, dynamic>));
+        _estados.add(Estado._fromJson(v as Map<String, dynamic>));
       }
     }
     return _estados.toList(growable: false);
+  }
+
+  Future<Estado?> pegarEstado(String NomeOuUFOuIBGE) async {
+    try {
+      await estados;
+      NomeOuUFOuIBGE = NomeOuUFOuIBGE.toLowerCase();
+      return _estados.firstWhere((e) => e.nome.toLowerCase() == NomeOuUFOuIBGE || e.uf.toLowerCase() == NomeOuUFOuIBGE || e.ibge.toString() == NomeOuUFOuIBGE.trim().substring(0, 1));
+    } catch (e) {
+      return null;
+    }
   }
 }
 
@@ -203,19 +210,12 @@ class Estado {
   final double longitude;
   final List<Cidade> cidades = [];
 
-  Estado(this.nome, this.uf, this.ibge, this.regiao, this.latitude, this.longitude);
+  Estado._(this.nome, this.uf, this.ibge, this.regiao, this.latitude, this.longitude);
 
-  factory Estado.fromJson(Map<String, dynamic> json) {
-    var e = Estado(
-      json['Nome'],
-      json['UF'],
-      json['IBGE'],
-      json['Regiao'],
-      json['Latitude'],
-      json['Longitude'],
-    );
+  factory Estado._fromJson(Map<String, dynamic> json) {
+    var e = Estado._(json['Nome'], json['UF'], json['IBGE'], json['Regiao'], json['Latitude'], json['Longitude']);
     json['Cidades'].forEach((v) {
-      e.cidades.add(Cidade.fromJson(v));
+      e.cidades.add(Cidade._fromJson(v));
     });
     return e;
   }
@@ -231,9 +231,9 @@ class Cidade {
   final int ddd;
   final String timeZone;
 
-  Cidade(this.nome, this.capital, this.ibge, this.siafi, this.ddd, this.timeZone);
+  Cidade._(this.nome, this.capital, this.ibge, this.siafi, this.ddd, this.timeZone);
 
-  factory Cidade.fromJson(Map<String, dynamic> json) => Cidade(json['Nome'], json['Capital'], json['IBGE'], json['SIAFI'], json['DDD'], json['TimeZone']);
+  factory Cidade._fromJson(Map<String, dynamic> json) => Cidade._(json['Nome'], json['Capital'], json['IBGE'], json['SIAFI'], json['DDD'], json['TimeZone']);
 
   Map<String, dynamic> toJson() => {'Nome': nome, 'Capital': capital, 'IBGE': ibge, 'SIAFI': siafi, 'DDD': ddd, 'TimeZone': timeZone};
 }
