@@ -179,26 +179,53 @@ mixin Brasil {
   }
 
   static final List<Estado> _estados = [];
+  static final List<Cidade> _cidades = [];
   static Future<List<Estado>> get estados async {
     if (_estados.isEmpty) {
       var jsonText = await rootBundle.loadString('assets/estados.json');
       var data = json.decode(jsonText) as List<dynamic>;
       for (var v in data) {
-        _estados.add(Estado._fromJson(v as Map<String, dynamic>));
+        var e = Estado._fromJson(v as Map<String, dynamic>);
+        _estados.add(e);
+        _cidades.addAll(e.cidades);
       }
     }
     return _estados.toList(growable: false);
   }
 
-  Future<Estado?> pegarEstado(String NomeOuUFOuIBGE) async {
+  static Future<List<Cidade>> get cidades async {
+    await estados;
+    return _cidades;
+  }
+
+  /// pega um estado a partir do nome, UF ou IBGE
+  static Future<Estado?> pegarEstado(String nomeOuUFOuIBGE) async {
     try {
       await estados;
-      NomeOuUFOuIBGE = NomeOuUFOuIBGE.toLowerCase();
-      return _estados.firstWhere((e) => e.nome.toLowerCase() == NomeOuUFOuIBGE || e.uf.toLowerCase() == NomeOuUFOuIBGE || e.ibge.toString() == NomeOuUFOuIBGE.trim().substring(0, 1));
+      nomeOuUFOuIBGE = nomeOuUFOuIBGE.toLowerCase().trim();
+      return _estados.firstWhere((e) => e.nome.toLowerCase() == nomeOuUFOuIBGE || e.uf.toLowerCase() == nomeOuUFOuIBGE || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2));
     } catch (e) {
       return null;
     }
   }
+
+  /// pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
+  static Future<List<Cidade>> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) async {
+    try {
+      await estados;
+      nomeCidadeOuIBGE = nomeCidadeOuIBGE.toLowerCase().trim();
+      Estado? e = await pegarEstado(nomeCidadeOuIBGE);
+      if (e == null && nomeOuUFOuIBGE.trim() != "") {
+        e = await pegarEstado(nomeOuUFOuIBGE);
+      }
+      return (e?.cidades ?? _cidades).where((c) => c.nome.toLowerCase().contains(nomeCidadeOuIBGE) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Pega uma cidade a partir do nome, UF ou IBGE e estado
+  static Future<Cidade?> pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) async => (await pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE)).singleOrNull;
 }
 
 class Estado {
@@ -210,17 +237,32 @@ class Estado {
   final double longitude;
   final List<Cidade> cidades = [];
 
+  @override
+  int get hashCode => ibge;
+
   Estado._(this.nome, this.uf, this.ibge, this.regiao, this.latitude, this.longitude);
 
   factory Estado._fromJson(Map<String, dynamic> json) {
     var e = Estado._(json['Nome'], json['UF'], json['IBGE'], json['Regiao'], json['Latitude'], json['Longitude']);
     json['Cidades'].forEach((v) {
-      e.cidades.add(Cidade._fromJson(v));
+      e.cidades.add(Cidade._fromJson(v, e));
     });
     return e;
   }
 
   Map<String, dynamic> toJson() => {'Nome': nome, 'UF': uf, 'IBGE': ibge, 'Regiao': regiao, 'Latitude': latitude, 'Longitude': longitude, 'Cidades': cidades.map((v) => v.toJson()).toList()};
+
+  @override
+  bool operator ==(Object other) {
+    if (other is Estado) {
+      return ibge == other.ibge;
+    }
+
+    if (other is Cidade) {
+      return ibge == other.estado.ibge;
+    }
+    return false;
+  }
 }
 
 class Cidade {
@@ -230,10 +272,27 @@ class Cidade {
   final int siafi;
   final int ddd;
   final String timeZone;
+  final Estado estado;
 
-  Cidade._(this.nome, this.capital, this.ibge, this.siafi, this.ddd, this.timeZone);
+  Cidade._(this.nome, this.capital, this.ibge, this.siafi, this.ddd, this.timeZone, this.estado);
 
-  factory Cidade._fromJson(Map<String, dynamic> json) => Cidade._(json['Nome'], json['Capital'], json['IBGE'], json['SIAFI'], json['DDD'], json['TimeZone']);
+  factory Cidade._fromJson(Map<String, dynamic> json, Estado estado) => Cidade._(json['Nome'], json['Capital'], json['IBGE'], json['SIAFI'], json['DDD'], json['TimeZone'], estado);
 
-  Map<String, dynamic> toJson() => {'Nome': nome, 'Capital': capital, 'IBGE': ibge, 'SIAFI': siafi, 'DDD': ddd, 'TimeZone': timeZone};
+  Map<String, dynamic> toJson() => {'Nome': nome, 'Capital': capital, 'IBGE': ibge, 'SIAFI': siafi, 'DDD': ddd, 'TimeZone': timeZone, "Estado": estado.uf};
+
+  @override
+  bool operator ==(Object other) {
+    if (other is Cidade) {
+      return ibge == other.ibge;
+    }
+
+    if (other is Estado) {
+      return estado.ibge == other.ibge;
+    }
+    return false;
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => ibge;
 }
