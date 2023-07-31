@@ -2,8 +2,15 @@ library brazil_tools;
 
 import 'dart:math';
 
+import 'dart:async' show Future;
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert';
+import 'package:flutter/services.dart';
+
 mixin Brasil {
-  
+
+
+
   /// Lista contendo os nomes mais comuns no Brasil
   static List<String> get nomesComuns => [
         "Miguel",
@@ -163,7 +170,7 @@ mixin Brasil {
         "Lopes"
       ];
 
-   /// Gera um nome aleatório
+  /// Gera um nome aleatório
   static String gerarNomeAleatorio({bool sobrenomeUnico = false}) {
     var random = Random();
     var s1 = sobrenomesComuns[random.nextInt(sobrenomesComuns.length)];
@@ -173,4 +180,60 @@ mixin Brasil {
     }
     return "${nomesComuns[random.nextInt(nomesComuns.length)]} $s1 $s2".trim();
   }
+
+  static final List<Estado> _estados = [];
+  static Future<List<Estado>> get estados async {
+    if (_estados.isEmpty) {
+      var jsonText = await rootBundle.loadString('assets/estados.json');
+      var data = json.decode(jsonText) as List<dynamic>;
+      for (var v in data) {
+        _estados.add(Estado.fromJson(v as Map<String, dynamic>));
+      }
+    }
+    return _estados.toList(growable: false);
+  }
+}
+
+class Estado {
+  final String nome;
+  final String uf;
+  final int ibge;
+  final String regiao;
+  final double latitude;
+  final double longitude;
+  final List<Cidade> cidades = [];
+
+  Estado(this.nome, this.uf, this.ibge, this.regiao, this.latitude, this.longitude);
+
+  factory Estado.fromJson(Map<String, dynamic> json) {
+    var e = Estado(
+      json['Nome'],
+      json['UF'],
+      json['IBGE'],
+      json['Regiao'],
+      json['Latitude'],
+      json['Longitude'],
+    );
+    json['Cidades'].forEach((v) {
+      e.cidades.add(Cidade.fromJson(v));
+    });
+    return e;
+  }
+
+  Map<String, dynamic> toJson() => {'Nome': nome, 'UF': uf, 'IBGE': ibge, 'Regiao': regiao, 'Latitude': latitude, 'Longitude': longitude, 'Cidades': cidades.map((v) => v.toJson()).toList()};
+}
+
+class Cidade {
+  final String nome;
+  final bool capital;
+  final int ibge;
+  final int siafi;
+  final int ddd;
+  final String timeZone;
+
+  Cidade(this.nome, this.capital, this.ibge, this.siafi, this.ddd, this.timeZone);
+
+  factory Cidade.fromJson(Map<String, dynamic> json) => Cidade(json['Nome'], json['Capital'], json['IBGE'], json['SIAFI'], json['DDD'], json['TimeZone']);
+
+  Map<String, dynamic> toJson() => {'Nome': nome, 'Capital': capital, 'IBGE': ibge, 'SIAFI': siafi, 'DDD': ddd, 'TimeZone': timeZone};
 }
