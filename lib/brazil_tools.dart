@@ -6041,7 +6041,11 @@ abstract interface class Brasil {
   static List<Estado> pesquisarEstado(String nomeOuUFOuIBGE) {
     try {
       nomeOuUFOuIBGE = nomeOuUFOuIBGE.toLowerCase().trim();
-      return estados.where((e) => e.nome.removeDiacritics().toLowerCase().contains(nomeOuUFOuIBGE) || e.uf.toLowerCase().removeDiacritics().startsWith(nomeOuUFOuIBGE) || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2) || e.cidades.any((c) => c.nome.removeDiacritics().toLowerCase() == nomeOuUFOuIBGE)).toList(growable: false);
+      var l = estados.where((e) => e.nome.removeDiacritics().toLowerCase().contains(nomeOuUFOuIBGE) || e.uf.toLowerCase().removeDiacritics().startsWith(nomeOuUFOuIBGE) || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2)).toList(growable: false);
+      if (l.isEmpty) {
+        l = estados.where((e) => e.cidades.any((c) => c.nome.removeDiacritics().toLowerCase() == nomeOuUFOuIBGE)).toList(growable: false);
+      }
+      return l;
     } catch (e) {
       return [];
     }
@@ -6063,7 +6067,6 @@ abstract interface class Brasil {
       return [];
     }
   }
-
 }
 
 class Estado implements Comparable<Estado> {
@@ -6128,11 +6131,11 @@ class Cidade implements Comparable<Cidade> {
 
   static List<Cidade> get pegarCidades => Brasil.cidades;
 
-    /// Pega uma cidade a partir do nome, UF ou IBGE e estado
-  static Cidade? pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pegarCidade(nomeCidadeOuIBGE,nomeOuUFOuIBGE);
-  
+  /// Pega uma cidade a partir do nome, UF ou IBGE e estado
+  static Cidade? pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pegarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE);
+
   /// Pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
-  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pesquisarCidade(nomeCidadeOuIBGE,nomeOuUFOuIBGE);
+  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE);
 
   @override
   String toString() => nome;
