@@ -2,6 +2,8 @@ library brazil_tools;
 
 import 'dart:math';
 
+import 'package:brazil_tools/utils.dart';
+
 /// Contém métodos uteis para varias operações relacionadas com o Brasil
 abstract interface class Brasil {
   static final List<Map<String, dynamic>> _br = [
@@ -6030,7 +6032,7 @@ abstract interface class Brasil {
   }
 
   /// Lista com todas as cidades do Brasil
-  static List<Cidade> get cidades => _estados.expand((element) => element.cidades).toList()..sort();
+  static List<Cidade> get cidades => estados.expand((element) => element.cidades).toList()..sort();
 
   /// pega um estado a partir do nome, UF ou IBGE
   static Estado? pegarEstado(String nomeOuUFOuIBGE) => pesquisarEstado(nomeOuUFOuIBGE).singleOrNull;
@@ -6039,7 +6041,7 @@ abstract interface class Brasil {
   static List<Estado> pesquisarEstado(String nomeOuUFOuIBGE) {
     try {
       nomeOuUFOuIBGE = nomeOuUFOuIBGE.toLowerCase().trim();
-      return estados.where((e) => e.nome.toLowerCase().contains(nomeOuUFOuIBGE) || e.uf.toLowerCase().startsWith(nomeOuUFOuIBGE) || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2) || e.cidades.any((c) => c.nome.toLowerCase() == nomeOuUFOuIBGE)).toList(growable: false);
+      return estados.where((e) => e.nome.removeDiacritics().toLowerCase().contains(nomeOuUFOuIBGE) || e.uf.toLowerCase().removeDiacritics().startsWith(nomeOuUFOuIBGE) || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2) || e.cidades.any((c) => c.nome.removeDiacritics().toLowerCase() == nomeOuUFOuIBGE)).toList(growable: false);
     } catch (e) {
       return [];
     }
@@ -6051,12 +6053,12 @@ abstract interface class Brasil {
   /// Pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
   static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) {
     try {
-      nomeCidadeOuIBGE = nomeCidadeOuIBGE.toLowerCase().trim();
+      nomeCidadeOuIBGE = nomeCidadeOuIBGE.toLowerCase().removeDiacritics().trim();
       Estado? e = pegarEstado(nomeCidadeOuIBGE);
       if (e == null && nomeOuUFOuIBGE.trim() != "") {
         e = pegarEstado(nomeOuUFOuIBGE);
       }
-      return (e?.cidades ?? (cidades)).where((c) => c.nome.toLowerCase().contains(nomeCidadeOuIBGE) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList(growable: false);
+      return (e?.cidades ?? (cidades)).where((c) => c.nome.toLowerCase().removeDiacritics().contains(nomeCidadeOuIBGE) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList(growable: false);
     } catch (e) {
       return [];
     }
