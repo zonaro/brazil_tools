@@ -1,7 +1,6 @@
 part of 'brazil_tools.dart';
 
-extension _Brasil on Brasil {
-
+abstract interface class _Brasil {
   static final List<Map<String, dynamic>> _br = [
     {
       "Nome": "Acre",

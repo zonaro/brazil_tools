@@ -7,7 +7,7 @@ import 'package:brazil_tools/utils.dart';
 part 'brazil_tools.part.dart';
 
 /// Contém métodos uteis para varias operações relacionadas com o Brasil
-abstract interface class Brasil {
+abstract interface class Brasil extends _Brasil {
   /// Lista contendo os nomes mais comuns no Brasil
   static List<String> get nomesComuns => [
         "Miguel",
@@ -181,7 +181,7 @@ abstract interface class Brasil {
   /// Lista com todos os Estados do Brasil
   static List<Estado> get estados {
     if (_estados.isEmpty) {
-      for (var v in _br) {
+      for (var v in _Brasil._br) {
         var e = Estado._fromJson(v);
         _estados.add(e);
       }
