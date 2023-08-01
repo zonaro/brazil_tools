@@ -6086,7 +6086,7 @@ class Estado implements Comparable<Estado> {
   /// Pesquisa um estado
   static List<Estado> pesquisarEstado(String nomeOuUFOuIBGE) => Brasil.pesquisarEstado(nomeOuUFOuIBGE);
 
-  Cidade get capital => cidades.firstWhere((e) => e.capital)!;
+  Cidade get capital => cidades.firstWhere((e) => e.capital);
 
   @override
   int compareTo(other) => nome.compareTo(other.nome);
