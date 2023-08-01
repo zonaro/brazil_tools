@@ -11,7 +11,7 @@ class EstadoAutocomplete extends Autocomplete<Estado> {
     super.optionsViewBuilder,
     super.initialValue,
     super.fieldViewBuilder,
-  }) : super(optionsBuilder: (TextEditingValue v) => Brasil.estados.where((element) => element.uf.toLowerCase() == v.text.toLowerCase() || element.nome.toLowerCase().contains(v.text.toLowerCase())).toList());
+  }) : super(optionsBuilder: (TextEditingValue v) => Estado.pesquisarEstado(v.text));
 }
 
 class CidadeAutocomplete extends Autocomplete<Cidade> {
@@ -23,5 +23,5 @@ class CidadeAutocomplete extends Autocomplete<Cidade> {
     super.initialValue,
     super.fieldViewBuilder,
     String nomeEstadoOuUfOuIBGE = "",
-  }) : super(optionsBuilder: (TextEditingValue v) => Brasil.pesquisarCidade(v.text, nomeEstadoOuUfOuIBGE));
+  }) : super(optionsBuilder: (TextEditingValue v) => Cidade.pesquisarCidade(v.text, nomeEstadoOuUfOuIBGE));
 }
