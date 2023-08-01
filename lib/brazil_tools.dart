@@ -1,7 +1,8 @@
 library brazil_tools;
 
-import 'dart:math'; 
+import 'dart:math';
 
+/// Contém métodos uteis para varias operações relacionadas com o Brasil
 abstract interface class Brasil {
   static final List<Map<String, dynamic>> _br = [
     {
@@ -6010,13 +6011,13 @@ abstract interface class Brasil {
     var random = Random();
     var s1 = sobrenomesComuns[random.nextInt(sobrenomesComuns.length)];
     var s2 = sobrenomesComuns[random.nextInt(sobrenomesComuns.length)];
-    if (random.nextBool() || s1 == s2 || sobrenomeUnico) {
-      s2 = "";
-    }
+    if (random.nextBool() || s1 == s2 || sobrenomeUnico) s2 = "";
     return "${nomesComuns[random.nextInt(nomesComuns.length)]} $s1 $s2".trim();
   }
 
   static final List<Estado> _estados = [];
+
+  /// Lista com todos os Estados do Brasil
   static List<Estado> get estados {
     if (_estados.isEmpty) {
       for (var v in _br) {
@@ -6028,27 +6029,17 @@ abstract interface class Brasil {
     return _estados.toList(growable: false);
   }
 
+  /// Lista com todas as cidades do Brasil
   static List<Cidade> get cidades => _estados.expand((element) => element.cidades).toList()..sort();
 
   /// pega um estado a partir do nome, UF ou IBGE
-  static Estado? pegarEstado(String nomeOuUFOuIBGE) {
+  static Estado? pegarEstado(String nomeOuUFOuIBGE) => pesquisarEstado(nomeOuUFOuIBGE).singleOrNull;
+
+  /// Pesquisa um estado
+  static List<Estado> pesquisarEstado(String nomeOuUFOuIBGE) {
     try {
       nomeOuUFOuIBGE = nomeOuUFOuIBGE.toLowerCase().trim();
-      return estados.firstWhere((e) => e.nome.toLowerCase() == nomeOuUFOuIBGE || e.uf.toLowerCase() == nomeOuUFOuIBGE || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2));
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
-  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) {
-    try {
-      nomeCidadeOuIBGE = nomeCidadeOuIBGE.toLowerCase().trim();
-      Estado? e = pegarEstado(nomeCidadeOuIBGE);
-      if (e == null && nomeOuUFOuIBGE.trim() != "") {
-        e = pegarEstado(nomeOuUFOuIBGE);
-      }
-      return (e?.cidades ?? (cidades)).where((c) => c.nome.toLowerCase().contains(nomeCidadeOuIBGE) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList();
+      return estados.where((e) => e.nome.toLowerCase().contains(nomeOuUFOuIBGE) || e.uf.toLowerCase().startsWith(nomeOuUFOuIBGE) || e.ibge.toString() == nomeOuUFOuIBGE.trim().substring(0, 2) || e.cidades.any((c) => c.nome.toLowerCase() == nomeOuUFOuIBGE)).toList(growable: false);
     } catch (e) {
       return [];
     }
@@ -6056,6 +6047,21 @@ abstract interface class Brasil {
 
   /// Pega uma cidade a partir do nome, UF ou IBGE e estado
   static Cidade? pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => (pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE)).singleOrNull;
+
+  /// Pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
+  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) {
+    try {
+      nomeCidadeOuIBGE = nomeCidadeOuIBGE.toLowerCase().trim();
+      Estado? e = pegarEstado(nomeCidadeOuIBGE);
+      if (e == null && nomeOuUFOuIBGE.trim() != "") {
+        e = pegarEstado(nomeOuUFOuIBGE);
+      }
+      return (e?.cidades ?? (cidades)).where((c) => c.nome.toLowerCase().contains(nomeCidadeOuIBGE) || c.ibge.toString().startsWith(nomeCidadeOuIBGE)).toList(growable: false);
+    } catch (e) {
+      return [];
+    }
+  }
+
 }
 
 class Estado implements Comparable<Estado> {
@@ -6066,6 +6072,14 @@ class Estado implements Comparable<Estado> {
   final double latitude;
   final double longitude;
   final List<Cidade> cidades = [];
+
+  static List<Estado> get pegarEstados => Brasil.estados;
+
+  /// pega um estado a partir do nome, UF ou IBGE
+  static Estado? pegarEstado(String nomeOuUFOuIBGE) => Brasil.pegarEstado(nomeOuUFOuIBGE);
+
+  /// Pesquisa um estado
+  static List<Estado> pesquisarEstado(String nomeOuUFOuIBGE) => Brasil.pesquisarEstado(nomeOuUFOuIBGE);
 
   @override
   int compareTo(other) => nome.compareTo(other.nome);
@@ -6109,6 +6123,14 @@ class Cidade implements Comparable<Cidade> {
   final int ddd;
   final String timeZone;
   final Estado estado;
+
+  static List<Cidade> get pegarCidades => Brasil.cidades;
+
+    /// Pega uma cidade a partir do nome, UF ou IBGE e estado
+  static Cidade? pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pegarCidade(nomeCidadeOuIBGE,nomeOuUFOuIBGE);
+  
+  /// Pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
+  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pesquisarCidade(nomeCidadeOuIBGE,nomeOuUFOuIBGE);
 
   @override
   String toString() => nome;
