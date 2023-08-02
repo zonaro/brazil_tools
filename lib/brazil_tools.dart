@@ -240,10 +240,10 @@ class Estado implements Comparable<Estado> {
   static List<Estado> get pegarEstados => Brasil.estados;
 
   /// pega um estado a partir do nome, UF ou IBGE
-  static Estado? pegarEstado(String nomeOuUFOuIBGE) => Brasil.pegarEstado(nomeOuUFOuIBGE);
+  static Estado? pegar(String nomeOuUFOuIBGE) => Brasil.pegarEstado(nomeOuUFOuIBGE);
 
   /// Pesquisa um estado
-  static List<Estado> pesquisarEstado(String nomeOuUFOuIBGE) => Brasil.pesquisarEstado(nomeOuUFOuIBGE);
+  static List<Estado> pesquisar(String nomeOuUFOuIBGE) => Brasil.pesquisarEstado(nomeOuUFOuIBGE);
 
   Cidade get capital => cidades.firstWhere((e) => e.capital);
 
@@ -293,10 +293,10 @@ class Cidade implements Comparable<Cidade> {
   static List<Cidade> get pegarCidades => Brasil.cidades;
 
   /// Pega uma cidade a partir do nome, UF ou IBGE e estado
-  static Cidade? pegarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pegarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE);
+  static Cidade? pegar(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pegarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE);
 
   /// Pesquisa uma cidade no Brasil todo ou em algum estado especifico se [nomeOuUFOuIBGE] for especificado
-  static List<Cidade> pesquisarCidade(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE);
+  static List<Cidade> pesquisar(String nomeCidadeOuIBGE, [String nomeOuUFOuIBGE = ""]) => Brasil.pesquisarCidade(nomeCidadeOuIBGE, nomeOuUFOuIBGE);
 
   @override
   String toString() => nome;
